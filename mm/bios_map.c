@@ -148,6 +148,7 @@ void bios_map_init(struct multiboot_mmap_entry *bmmap_addr, unsigned long int bm
 		kstat.physical_pages = (kparm_extmemsize + 1024) >> 2;
 	}
 
+	kstat.physical_pages_present = kstat.physical_pages;
 	/*
 	 * This truncates to 1GB since it's the maximum physical memory
 	 * currently supported.

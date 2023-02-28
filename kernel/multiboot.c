@@ -241,7 +241,11 @@ unsigned int get_last_boot_addr(unsigned int info)
 	if(mbi->flags & MULTIBOOT_INFO_MODS) {
 		mod = (struct multiboot_mod_list *)mbi->mods_addr;
 		for(n = 0; n < mbi->mods_count; n++, mod++) {
-			addr = mod->mod_end;
+			/* If the module is small enough, we can fit it in the
+			 * low address space without colliding with user processes.
+			 */
+			if (mod->mod_end + MAX_PGTABLE_SIZE < 0x08048000)
+				addr = mod->mod_end;
 		}
 	}
 
@@ -316,6 +320,11 @@ void multiboot(unsigned long magic, unsigned long info)
 					kparm_initrdsize = mod->mod_end - mod->mod_start;
 					printk("initrd    0x%08x-0x%08x file='%s' size=%dKB\n", mod->mod_start, mod->mod_end, mod->cmdline, kparm_initrdsize / 1024);
 					ramdisk_table[0].addr = (char *)mod->mod_start;
+					/* If initrd would conflict with user process address space, relocate later to upper memory if possible. */
+					if (mod->mod_end + MAX_PGTABLE_SIZE > 0x08048000) {
+						printk("Large initrd will need relocation to avoid conflict with user processes.\n");
+						_initrdrelocate = 1;
+					}
 				}
 			}
 		}
