@@ -29,6 +29,7 @@ static struct fs_operations ata_cd_driver_fsop = {
 	ata_cd_ioctl,
 	NULL,			/* lseek */
 	NULL,			/* readdir */
+	NULL,			/* readdir64 */
 	NULL,			/* mmap */
 	NULL,			/* select */
 
