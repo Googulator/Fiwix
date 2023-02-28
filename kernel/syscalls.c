@@ -472,6 +472,70 @@ void *syscall_table[] = {
 	NULL,
 	NULL,				/* 270 */
 	sys_utimes,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 275 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 280 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 285 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 290 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 295 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 300 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 305 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 310 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 315 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 320 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 325 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 330 */
+	sys_pipe2,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 335 */
 };
 
 static void do_bad_syscall(unsigned int num)
