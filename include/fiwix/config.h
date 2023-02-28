@@ -86,7 +86,7 @@
 #ifdef CONFIG_MMAP2
 #define CONFIG_SYSCALL_6TH_ARG
 #endif
-
+/* #define CONFIG_NOT_IMPLEMENTED_WARNING */
 
 /* configuration options to help debug or to test new features */
 #ifndef NO_CONFIG_VERBOSE_SEGFAULTS
