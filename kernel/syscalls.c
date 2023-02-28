@@ -453,6 +453,25 @@ void *syscall_table[] = {
 	NULL,				/* 250 */
 	NULL,
 	sys_exit_group,
+	NULL,
+	NULL,
+	NULL,				/* 255 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 260 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 265 */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,				/* 270 */
+	sys_utimes,
 };
 
 static void do_bad_syscall(unsigned int num)
