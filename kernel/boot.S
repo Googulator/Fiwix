@@ -138,11 +138,8 @@ multiboot_header:			/* multiboot header */
 	add	$4, %esp
 	popl	%ecx			/* restore Multiboot magic value */
 	andl	$0xFFFFF000, %eax	/* page aligned */
-	addl	$0x3000, %eax		/* 2 whole pages for kernel stack */
-	subl	$4, %eax
-	movl	%eax, %esp		/* set kernel stack */
 
-	pushl	%esp			/* save kernel stack address */
+	pushl	%eax			/* save last boot address */
 	pushl	%ebx			/* save Multiboot info structure */
 	pushl	%ecx			/* save Multiboot magic value */
 	call	start_kernel
