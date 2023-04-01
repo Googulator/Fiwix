@@ -25,6 +25,7 @@ struct fs_operations minix_symlink_fsop = {
 	NULL,			/* ioctl */
 	NULL,			/* lseek */
 	NULL,			/* readdir */
+	NULL,			/* readdir64 */
 	NULL,			/* mmap */
 	NULL,			/* select */
 

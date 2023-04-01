@@ -29,6 +29,7 @@ static struct fs_operations fb_driver_fsop = {
 	fb_ioctl,
 	fb_lseek,
 	NULL,			/* readdir */
+	NULL,			/* readdir64 */
 	NULL,
 	NULL,			/* select */
 
