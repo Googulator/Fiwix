@@ -24,6 +24,10 @@
 #define PGDIR_4MB_ADDR		0x50000
 #define PGDIR_INITIAL_4MB_UNITS	1
 
+#define RAMDISK_RELOCATION_ADDR	0x60000000
+
+short int adjusted_mb4 = PGDIR_INITIAL_4MB_UNITS;
+
 unsigned int *kpage_dir;
 
 unsigned int proc_table_size = 0;
@@ -40,6 +44,7 @@ unsigned int page_table_size = 0;
 unsigned int page_hash_table_size = 0;
 
 void setup_more_minmem(void);
+void relocate_large_initrd(void);
 
 
 unsigned int map_kaddr(unsigned int from, unsigned int to, unsigned int addr, int flags)
@@ -106,7 +111,7 @@ void setup_more_minmem()
 	int n;
 	unsigned int addr;
 	unsigned int * kpage_dir, * kpage_table;
-	short int pd, mb4;
+	short int pd;
 
 	addr = PAGE_OFFSET + PGDIR_4MB_ADDR;
 	kpage_dir = (unsigned int *)addr;
@@ -114,8 +119,8 @@ void setup_more_minmem()
 	addr += PAGE_SIZE;
 	kpage_table = (unsigned int *)addr;
 
-	mb4 = ((_last_data_addr + MAX_PGTABLE_SIZE) / 0x400000) + 1;
-	for(n = 0; n < (1024 * mb4); n++) {
+	adjusted_mb4 = ((_last_data_addr + MAX_PGTABLE_SIZE) / 0x400000) + 1;
+	for(n = 0; n < (1024 * adjusted_mb4); n++) {
 		kpage_table[n] = (n << PAGE_SHIFT) | PAGE_PRESENT | PAGE_RW;
 		if(!(n % 1024)) {
 			pd = n / 1024;
@@ -301,6 +306,10 @@ void mem_init(void)
 		setup_more_minmem();
 	}
 
+	if (_initrdrelocate && ramdisk_table[0].addr) {
+		relocate_large_initrd();
+	}
+
 	kpage_dir = (unsigned int *)_last_data_addr;
 	memset_b(kpage_dir, 0, PAGE_SIZE);
 	_last_data_addr += PAGE_SIZE;
@@ -329,6 +338,13 @@ void mem_init(void)
 	if(video.flags & VPF_VESAFB) {
 		/* reserve 4 page tables (16MB) */
 		_last_data_addr += (PAGE_SIZE * 4);
+	}
+
+	if (_initrdrelocate) {
+		_last_data_addr = map_kaddr(RAMDISK_RELOCATION_ADDR,
+			(unsigned) RAMDISK_RELOCATION_ADDR + (unsigned) (RAMDISK_MAXSIZE * 1024),
+			_last_data_addr,
+			PAGE_PRESENT | PAGE_RW);
 	}
 
 	_last_data_addr = map_kaddr(KERNEL_ENTRY_ADDR, _last_data_addr, _last_data_addr, PAGE_PRESENT | PAGE_RW);
@@ -452,6 +468,78 @@ void mem_init(void)
 
 	page_init(kstat.physical_pages);
 	buddy_low_init();
+}
+
+void relocate_large_initrd()
+{
+	unsigned int have = kstat.physical_pages_present * PAGE_SIZE;
+	unsigned int need = (unsigned) RAMDISK_RELOCATION_ADDR + (unsigned) (RAMDISK_MAXSIZE * 1024);
+
+	unsigned int addr;
+	unsigned int *minpage_dir;
+	unsigned int *from_rampage_table, *to_rampage_table;
+	unsigned int offset;
+	unsigned int from, to;
+	unsigned int from_pde, to_pde;
+	unsigned int from_pte, to_pte;
+
+	if (have < need) {
+		printk("WARNING: Cannot relocate large initrd, not enough physical memory.\n");
+		printk("WARNING: Have %u bytes need %u bytes.\n", have, need);
+		return;
+	}
+
+	/* Locate the "minimum" page directory (see setup_minmem()) */
+	addr = PAGE_OFFSET + PGDIR_4MB_ADDR;
+	minpage_dir = (unsigned int *) addr;
+
+	/* Skip past the page directory */
+	addr += PAGE_SIZE;
+
+	/* Skip past the page tables for kernel memory */
+	addr += (PAGE_SIZE * adjusted_mb4);
+
+	/* Setup page table for source memory */
+	from_rampage_table = (unsigned int *) addr;
+	memset_b((void *)from_rampage_table, 0, PAGE_SIZE);
+	addr += PAGE_SIZE;
+
+	/* Setup page table for destination memory */
+	to_rampage_table = (unsigned int *) addr;
+	memset_b((void *)to_rampage_table, 0, PAGE_SIZE);
+
+	/* Map and copy pages one at a time */
+	for(offset = 0; offset < (RAMDISK_MAXSIZE * 1024); offset += PAGE_SIZE) {
+		from = (unsigned int)ramdisk_table[0].addr + offset;
+		from_pde = GET_PGDIR(from);
+		/* Only map if entry is not already mapped */
+		if (from_pde > (adjusted_mb4 - 1)) {
+			from_pte = GET_PGTBL(from);
+			from_rampage_table[from_pte] = from | PAGE_PRESENT | PAGE_RW;
+			/* Set page directory entry to physical address of from address page table */
+			minpage_dir[from_pde] = V2P((unsigned int)from_rampage_table) | PAGE_PRESENT | PAGE_RW;
+		}
+
+		to = RAMDISK_RELOCATION_ADDR + offset;
+		to_pde = GET_PGDIR(to);
+		to_pte = GET_PGTBL(to);
+		to_rampage_table[to_pte] = to | PAGE_PRESENT | PAGE_RW;
+		/* Set page directory entry to physical address of to address page table */
+		minpage_dir[to_pde] = V2P((unsigned int)to_rampage_table) | PAGE_PRESENT | PAGE_RW;
+
+		/* Now that the mappings are setup, copy the page */
+		memcpy_b((void *)to, (void *)from, PAGE_SIZE);
+
+		/* Unmap the memory */
+		/* Only unmap if entry was not already mapped */
+		if (from_pde > (adjusted_mb4 - 1)) {
+			minpage_dir[from_pde] = 0;
+			from_rampage_table[from_pte] = 0;
+		}
+		minpage_dir[to_pde] = 0;
+		to_rampage_table[to_pte] = 0;
+	}
+	ramdisk_table[0].addr = (char *)RAMDISK_RELOCATION_ADDR;
 }
 
 #ifdef __TINYC__
