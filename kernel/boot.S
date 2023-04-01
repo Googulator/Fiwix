@@ -19,11 +19,16 @@
 #define CR0_AM	0x00040000	/* bit 18 -> enable alignment checking */
 #define CR0_PG	0x80000000	/* bit 31 -> enable paging */
 
+#ifdef __TINYC__
+.data
+#else
 .section .setup, "a"		/* "a" attribute means Allocatable section */
+#endif
 
 .align 4
 tmp_gdtr:
 	.word ((3 * 8) - 1)
+tmp_gdta:
 	.long tmp_gdt
 
 .align 4
@@ -78,9 +83,20 @@ multiboot_header:			/* multiboot header */
  * registers, since they are holding the Multiboot values 'magic' and 'info'
  * respectively.
  */
-.globl start; start:
+.globl _start; _start:
+#ifdef __TINYC__
+        movl    $tmp_gdt, %esi
+        subl    $0xC0000000, %esi
+        movl    $tmp_gdta, %edi
+        subl    $0xC0000000, %edi
+        movl    %esi, (%edi)
+        movl    $tmp_gdtr, %esi
+        subl    $0xC0000000, %esi
+	lgdt	(%esi)			/* load GDTR with the temporary GDT */
+#else
 	cli
 	lgdt	tmp_gdtr		/* load GDTR with the temporary GDT */
+#endif
 	movw	$KERNEL_DS, %cx
 	movw	%cx, %ds
 	movw	%cx, %es
