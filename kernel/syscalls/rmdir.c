@@ -40,7 +40,7 @@ int sys_rmdir(const char *dirname)
 		free_name(tmp_dirname);
 		return -ENOTDIR;
 	}
-	if(i == current->root || i->mount_point || i->count > 1) {
+	if(i == current->root || i->mount_point) {
 		iput(i);
 		iput(dir);
 		free_name(tmp_dirname);
