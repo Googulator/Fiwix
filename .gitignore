@@ -1,0 +1,3 @@
+*.o
+fiwix
+System.map.gz
