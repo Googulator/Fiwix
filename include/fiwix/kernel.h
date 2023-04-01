@@ -24,7 +24,9 @@
 
 #define CURRENT_TIME	(kstat.system_time)
 #define CURRENT_TICKS	(kstat.ticks)
+#ifndef INIT_PROGRAM
 #define INIT_PROGRAM	"/sbin/init"
+#endif
 
 /* Max memory for page tables:
  * 0x101000 for page dir and 1GB physical
