@@ -12,7 +12,7 @@
 
 #define RAMDISK_MAJOR	1	/* ramdisk device major number */
 #define RAMDISK_MINORS	1	/* number of minors */
-#define RAMDISK_MAXSIZE	122880	/* maximum ramdisk size in KBs */
+#define RAMDISK_MAXSIZE	1433600	/* maximum ramdisk size in KBs */
 
 struct ramdisk {
 	char *addr;		/* ramdisk memory address */
