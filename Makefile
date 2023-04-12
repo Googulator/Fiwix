@@ -11,11 +11,21 @@ ARCH = -m32
 CPU = -march=i386
 LANG = -std=c89
 
-CC = $(CROSS_COMPILE)gcc $(ARCH) $(CPU) $(LANG) -D__KERNEL__ #-D__DEBUG__
-LD = $(CROSS_COMPILE)ld
+CCEXE=gcc
+CC = $(CROSS_COMPILE)$(CCEXE) $(ARCH) $(CPU) $(LANG) -D__KERNEL__ $(CONFFLAGS) #-D__DEBUG__
+CFLAGS = -I$(INCLUDE) -O2 -fno-pie -fno-common -ffreestanding -Wall -Wstrict-prototypes #-Wextra -Wno-unused-parameter
 
-CFLAGS = -I$(INCLUDE) -O2 -fno-pie -fno-common -ffreestanding -Wall -Wstrict-prototypes $(CONFFLAGS) #-Wextra -Wno-unused-parameter
+ifeq ($(CCEXE),gcc)
+LD = $(CROSS_COMPILE)ld
 LDFLAGS = -m elf_i386 -nostartfiles -nostdlib -nodefaultlibs -nostdinc
+endif
+
+ifeq ($(CCEXE),tcc)
+CC += -D__VERSION__=\"tcc\"
+LD = $(CROSS_COMPILE)$(CCEXE) $(ARCH)
+LDFLAGS = -static -nostdlib -nostdinc
+endif
+
 
 DIRS =	kernel \
 	kernel/syscalls \
@@ -47,8 +57,13 @@ export CC LD CFLAGS LDFLAGS INCLUDE
 all:
 	@echo "#define UTS_VERSION \"`date`\"" > include/fiwix/version.h
 	@for n in $(DIRS) ; do (cd $$n ; $(MAKE)) || exit ; done
+ifeq ($(CCEXE),gcc)
 	$(LD) -N -T fiwix.ld $(LDFLAGS) $(OBJS) -o fiwix
 	nm fiwix | sort | gzip -9c > System.map.gz
+endif
+ifeq ($(CCEXE),tcc)
+	$(LD) -Wl,-Ttext=0xC0100000 $(LDFLAGS) $(OBJS) -o fiwix
+endif
 
 clean:
 	@for n in $(DIRS) ; do (cd $$n ; $(MAKE) clean) ; done
