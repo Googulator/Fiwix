@@ -30,6 +30,7 @@ struct vma {
 #include <fiwix/time.h>
 #include <fiwix/resource.h>
 #include <fiwix/tty.h>
+#include <fiwix/buffer.h>
 
 #define IDLE		0		/* PID of idle */
 #define INIT		1		/* PID of /sbin/init */
@@ -162,6 +163,8 @@ struct proc {
 	struct proc *next_sleep;
 	struct proc *prev_run;
 	struct proc *next_run;
+	int location_before_buffer_wait;
+	struct buffer *wait_buffer;
 };
 
 extern struct proc *current;

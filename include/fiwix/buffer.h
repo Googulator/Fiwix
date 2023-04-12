@@ -21,6 +21,8 @@ struct buffer {
 	__blk_t block;			/* block number */
 	int size;			/* block size (in bytes) */
 	int flags;
+	int lock_location;
+	int get_dirty_location;
 	char *data;			/* block contents */
 	struct buffer *prev;
 	struct buffer *next;

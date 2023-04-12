@@ -249,13 +249,17 @@ static void buffer_wait(struct buffer *buf)
 	for(;;) {
 		SAVE_FLAGS(flags); CLI();
 		if(buf->flags & BUFFER_LOCKED) {
+			current->location_before_buffer_wait = 1;
+			current->wait_buffer = buf;
 			sleep(&buffer_wait, PROC_UNINTERRUPTIBLE);
+			current->location_before_buffer_wait = 0;
 		} else {
 			break;
 		}
 		RESTORE_FLAGS(flags);
 	}
 	buf->flags |= BUFFER_LOCKED;
+	buf->lock_location = 2;
 	RESTORE_FLAGS(flags);
 }
 
@@ -270,6 +274,7 @@ static struct buffer *get_free_buffer(int mode)
 				return NULL;
 			}
 			buf->flags |= BUFFER_LOCKED;
+			buf->lock_location = 3;
 			return buf;
 		}
 	}
@@ -283,7 +288,10 @@ static struct buffer *get_free_buffer(int mode)
 		SAVE_FLAGS(flags); CLI();
 		buf = buffer_head;
 		if(buf->flags & BUFFER_LOCKED) {
+			current->location_before_buffer_wait = 2;
+			current->wait_buffer = buf;
 			sleep(&buffer_wait, PROC_UNINTERRUPTIBLE);
+			current->location_before_buffer_wait = 0;
 		} else {
 			break;
 		}
@@ -292,12 +300,13 @@ static struct buffer *get_free_buffer(int mode)
 
 	remove_from_free_list(buf);
 	buf->flags |= BUFFER_LOCKED;
+	buf->lock_location = 4;
 
 	RESTORE_FLAGS(flags);
 	return buf;
 }
 
-static struct buffer *get_dirty_buffer(void)
+static struct buffer *get_dirty_buffer(int get_dirty_location)
 {
 	unsigned long int flags;
 	struct buffer *buf;
@@ -310,7 +319,10 @@ static struct buffer *get_dirty_buffer(void)
 			return NULL;
 		}
 		if(buf->flags & BUFFER_LOCKED) {
+			current->location_before_buffer_wait = 3;
+			current->wait_buffer = buf;
 			sleep(&buffer_wait, PROC_UNINTERRUPTIBLE);
+			current->location_before_buffer_wait = 0;
 		} else {
 			break;
 		}
@@ -319,6 +331,8 @@ static struct buffer *get_dirty_buffer(void)
 
 	remove_from_dirty_list(buf);
 	buf->flags |= BUFFER_LOCKED;
+	buf->lock_location = 5;
+	buf->get_dirty_location = get_dirty_location;
 
 	RESTORE_FLAGS(flags);
 	return buf;
@@ -385,11 +399,15 @@ static struct buffer *getblk(__dev_t dev, __blk_t block, int size)
 		if((buf = search_buffer_hash(dev, block, size))) {
 			SAVE_FLAGS(flags); CLI();
 			if(buf->flags & BUFFER_LOCKED) {
+				current->location_before_buffer_wait = 4;
+				current->wait_buffer = buf;
 				sleep(&buffer_wait, PROC_UNINTERRUPTIBLE);
 				RESTORE_FLAGS(flags);
+				current->location_before_buffer_wait = 0;
 				continue;
 			}
 			buf->flags |= BUFFER_LOCKED;
+			buf->lock_location = 1;
 			remove_from_free_list(buf);
 			RESTORE_FLAGS(flags);
 			return buf;
@@ -492,7 +510,7 @@ void sync_buffers(__dev_t dev)
 
 	lock_resource(&sync_resource);
 	for(;;) {
-		if(!(buf = get_dirty_buffer())) {
+		if(!(buf = get_dirty_buffer(1))) {
 			break;
 		}
 		if(first) {
@@ -603,7 +621,7 @@ int kbdflushd(void)
 
 		lock_resource(&sync_resource);
 		for(;;) {
-			if(!(buf = get_dirty_buffer())) {
+			if(!(buf = get_dirty_buffer(2))) {
 				break;
 			}
 

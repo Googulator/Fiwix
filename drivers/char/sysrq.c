@@ -43,13 +43,21 @@ static void process_list(void)
 
 	printk("USER   PID   PPID  S SLEEP_ADDR CMD\n");
 	FOR_EACH_PROCESS(p) {
-		printk("%d    %5d  %5d  %s ", p->uid, p->pid, p->ppid, pstate[p->state]);
-		if(p->state == PROC_SLEEPING) {
-			printk("0x%08x ", p->sleep_address);
-		} else {
-			printk("           ");
+		if (p->state != 3) {
+			printk("%d    %5d  %5d  %s ", p->uid, p->pid, p->ppid, pstate[p->state]);
+			if(p->state == PROC_SLEEPING) {
+				printk("0x%08x ", p->sleep_address);
+			} else {
+				printk("           ");
+			}
+			printk("%s\n", p->argv0);
+			if (p->location_before_buffer_wait > 0) {
+				printk("buffer->location_before_buffer_wait = %d\n", p->location_before_buffer_wait);
+				printk("buffer->lock_location = %d\n", p->wait_buffer->lock_location);
+				printk("buffer->get_dirty_location = %d\n", p->wait_buffer->get_dirty_location);
+				printk("buffer->flags = %d\n", p->wait_buffer->flags);
+			}
 		}
-		printk("%s\n", p->argv0);
 		p = p->next;
 	}
 
