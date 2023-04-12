@@ -82,6 +82,10 @@
 #ifndef NO_CONFIG_LAZY_USER_ADDR_CHECK
 #define CONFIG_BGA
 #endif
+/* #define CONFIG_MMAP2 */
+#ifdef CONFIG_MMAP2
+#define CONFIG_SYSCALL_6TH_ARG
+#endif
 
 
 /* configuration options to help debug or to test new features */
