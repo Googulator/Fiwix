@@ -45,4 +45,26 @@ struct new_stat {
 	unsigned int __unused5;
 };
 
+struct stat64 {
+        unsigned long long st_dev;
+        unsigned long __pad1;
+        unsigned long __st_ino;
+        unsigned int st_mode;
+        unsigned int st_nlink;
+        unsigned long st_uid;
+        unsigned long st_gid;
+        unsigned long long st_rdev;
+        unsigned long __pad2;
+        long long st_size;
+        unsigned long st_blksize;
+        unsigned long long st_blocks;
+        unsigned long st_atime;
+        unsigned long st_atime_nsec;
+        unsigned long st_mtime;
+        unsigned int st_mtime_nsec;
+        unsigned long st_ctime;
+        unsigned long st_ctime_nsec;
+        unsigned long long st_ino;
+};
+
 #endif /* _FIWIX_STATBUF_H */
