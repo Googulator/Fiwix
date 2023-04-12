@@ -28,6 +28,7 @@ struct fs_operations minix_file_fsop = {
 	NULL,			/* ioctl */
 	minix_file_lseek,
 	NULL,			/* readdir */
+	NULL,			/* readdir64 */
 	NULL,			/* mmap */
 	NULL,			/* select */
 

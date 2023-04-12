@@ -367,7 +367,7 @@ int ext2_link(struct inode *i_old, struct inode *dir_new, char *name)
 		}
 		break;
 	}
-	d->file_type = 0;	/* not used */
+	d->file_type = 0;	/* FIXME */
 
 	i_old->i_nlink++;
 	i_old->i_ctime = CURRENT_TIME;
@@ -510,7 +510,7 @@ int ext2_symlink(struct inode *dir, char *name, char *oldname)
 		}
 		break;
 	}
-	d->file_type = 0;	/* EXT2_FT_SYMLINK not used */
+	d->file_type = EXT2_FT_SYMLINK;
 
 	dir->i_mtime = CURRENT_TIME;
 	dir->i_ctime = CURRENT_TIME;
@@ -586,7 +586,7 @@ int ext2_mkdir(struct inode *dir, char *name, __mode_t mode)
 		}
 		break;
 	}
-	d->file_type = 0;	/* EXT2_FT_DIR not used */
+	d->file_type = EXT2_FT_DIR;
 
 	d2 = (struct ext2_dir_entry_2 *)buf2->data;
 	d2->inode = i->inode;
@@ -594,7 +594,7 @@ int ext2_mkdir(struct inode *dir, char *name, __mode_t mode)
 	d2->name[1] = 0;
 	d2->name_len = 1;
 	d2->rec_len = 12;
-	d2->file_type = 0;	/* EXT2_FT_DIR not used */
+	d2->file_type = EXT2_FT_DIR;
 	i->i_nlink = 1;
 	d2 = (struct ext2_dir_entry_2 *)(buf2->data + 12);
 	d2->inode = dir->inode;
@@ -603,7 +603,7 @@ int ext2_mkdir(struct inode *dir, char *name, __mode_t mode)
 	d2->name[2] = 0;
 	d2->name_len = 2;
 	d2->rec_len = i->sb->s_blocksize - 12;
-	d2->file_type = 0;	/* EXT2_FT_DIR not used */
+	d2->file_type = EXT2_FT_DIR;
 	i->i_nlink++;
 	i->i_size = i->sb->s_blocksize;
 	i->i_blocks = dir->sb->s_blocksize / 512;
@@ -674,20 +674,20 @@ int ext2_mknod(struct inode *dir, char *name, __mode_t mode, __dev_t dev)
 			i->fsop = &def_chr_fsop;
 			i->rdev = dev;
 			i->i_mode |= S_IFCHR;
-			d->file_type = 0;	/* EXT2_FT_CHRDEV not used */
+			d->file_type = EXT2_FT_CHRDEV;
 			break;
 		case S_IFBLK:
 			i->fsop = &def_blk_fsop;
 			i->rdev = dev;
 			i->i_mode |= S_IFBLK;
-			d->file_type = 0;	/* EXT2_FT_BLKDEV not used */
+			d->file_type = EXT2_FT_BLKDEV;
 			break;
 		case S_IFIFO:
 			i->fsop = &pipefs_fsop;
 			i->i_mode |= S_IFIFO;
 			/* it's a union so we need to clear pipefs_i */
 			memset_b(&i->u.pipefs, 0, sizeof(struct pipefs_inode));
-			d->file_type = 0;	/* EXT2_FT_FIFO not used */
+			d->file_type = EXT2_FT_FIFO;
 			break;
 	}
 
@@ -746,7 +746,7 @@ int ext2_create(struct inode *dir, char *name, int flags, __mode_t mode, struct 
 		}
 		break;
 	}
-	d->file_type = 0;	/* EXT2_FT_REG_FILE not used */
+	d->file_type = EXT2_FT_REG_FILE;
 
 	i->i_mode = (mode & ~current->umask) & ~S_IFMT;
 	i->i_mode |= S_IFREG;
