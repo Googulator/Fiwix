@@ -66,7 +66,7 @@
 #ifdef CONFIG_MMAP2
 #define CONFIG_SYSCALL_6TH_ARG
 #endif
-
+/* #define CONFIG_NOT_IMPLEMENTED_WARNING */
 
 /* toggle configuration options */
 #ifndef NO_CONFIG_PCI
