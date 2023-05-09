@@ -85,6 +85,7 @@ static struct fs_operations fdc_driver_fsop = {
 	fdc_ioctl,
 	fdc_lseek,
 	NULL,			/* readdir */
+	NULL,			/* readdir64 */
 	NULL,			/* mmap */
 	NULL,			/* select */
 
