@@ -62,6 +62,10 @@
 #define MAX_SPU_NOTICES		10	/* max. number of messages on spurious
 					   interrupts */
 #endif
+/* #define CONFIG_MMAP2 */
+#ifdef CONFIG_MMAP2
+#define CONFIG_SYSCALL_6TH_ARG
+#endif
 
 
 /* toggle configuration options */
