@@ -89,8 +89,8 @@ static int check_parm(struct kparms *parm, const char *value)
 #endif /* CONFIG_KEXEC */
 	if(!strcmp(parm->name, "ramdisksize=")) {
 		int size = atoi(value);
-		if(!size || size > RAMDISK_MAXSIZE) {
-			printk("WARNING: 'ramdisksize=' value is out of limits.\n");
+		if(size <= 0 || size > RAMDISK_MAXSIZE) {
+			printk("WARNING: 'ramdisksize' value is out of limits. Ram drive disabled.\n");
 			kparm_ramdisksize = 0;
 		} else {
 			kparm_ramdisksize = size;
@@ -358,10 +358,16 @@ void multiboot(unsigned int magic, unsigned int info)
 		mod = (struct multiboot_mod_list *)mbi.mods_addr;
 		for(n = 0; n < mbi.mods_count; n++, mod++) {
 			if(!strcmp((char *)mod->cmdline, kparm_initrd)) {
-				printk("initrd    0x%08x-0x%08x file='%s' size=%dKB\n", mod->mod_start, mod->mod_end, mod->cmdline, (mod->mod_end - mod->mod_start) / 1024);
-				ramdisk_table[0].addr = (char *)mod->mod_start;
-				ramdisk_table[0].size = kparm_ramdisksize;
-				ramdisk_minors++;
+				if ((mod->mod_end - mod->mod_start) > RAMDISK_MAXSIZE * 1024) {
+					printk("WARNING: initrd ignored. Size %u exceeds max %u.\n", kparm_initrdsize, RAMDISK_MAXSIZE * 1024);
+				} else {
+					/* By definition, mod_end is address of last byte plus one */
+					kparm_initrdsize = mod->mod_end - mod->mod_start;
+					printk("initrd    0x%08x-0x%08x file='%s' size=%dKB\n", mod->mod_start, mod->mod_end, mod->cmdline, kparm_initrdsize / 1024);
+					ramdisk_table[0].addr = (char *)mod->mod_start;
+					ramdisk_table[0].size = kparm_ramdisksize;
+					ramdisk_minors++;
+				}
 			}
 		}
 	}
