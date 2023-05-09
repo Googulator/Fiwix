@@ -37,6 +37,7 @@ int kparm_extmemsize;
 int kparm_rootdev;
 int kparm_ramdisksize;
 int kparm_initrdsize;
+int _initrdrelocate;
 char kparm_rootfstype[10];
 char kparm_rootdevname[DEVNAME_MAX + 1];
 char kparm_initrd[DEVNAME_MAX + 1];

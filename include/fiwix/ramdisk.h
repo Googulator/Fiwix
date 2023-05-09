@@ -11,7 +11,7 @@
 #include <fiwix/fs.h>
 
 #define RAMDISK_MAJOR	1	/* ramdisk device major number */
-#define RAMDISK_MAXSIZE	122880  /* maximum ramdisk size in KBs */
+#define RAMDISK_MAXSIZE	1433600	/* maximum ramdisk size in KBs */
 #define RAMDISK_TOTAL	10	/* total number of ramdisk drives */
 
 #define RAMDISK_DRIVES	1	/* number of all-purpose ramdisk drives */

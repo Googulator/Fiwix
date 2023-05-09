@@ -32,9 +32,10 @@
 /* Max memory for page tables:
  * 0x101000 for page dir and 1GB physical
  * 0x001000 for low memory page table
- * 0x01E000 for 120MB ram drive page tables
+ * 0x004000 for video memory
+ * 0x15E000 for 1400MB ram drive page tables
  */
-#define MAX_PGTABLE_SIZE 0x120000
+#define MAX_PGTABLE_SIZE	0x264000
 
 /* kernel flags */
 #define KF_HAS_PANICKED		0x01	/* the kernel has panic'ed */
@@ -52,6 +53,7 @@ extern int kparm_extmemsize;
 extern int kparm_rootdev;
 extern int kparm_ramdisksize;
 extern int kparm_initrdsize;
+extern int _initrdrelocate;
 extern char kparm_rootfstype[10];
 extern char kparm_rootdevname[DEVNAME_MAX + 1];
 extern char kparm_initrd[DEVNAME_MAX + 1];
@@ -92,7 +94,8 @@ struct kernel_stat {
 	unsigned int uptime;		/* seconds since boot */
 	unsigned int processes;		/* number of forks since boot */
 	int syscondev;			/* system console device */
-	int physical_pages;		/* physical memory (in pages) */
+	int physical_pages_present;	/* physical memory (in pages) */
+	int physical_pages;		/* usable physical memory (in pages) */
 	int kernel_reserved;		/* kernel memory reserved (in KB) */
 	int physical_reserved;		/* physical memory reserved (in KB) */
 	int total_mem_pages;		/* total memory (in pages) */
