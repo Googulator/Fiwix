@@ -84,6 +84,10 @@
 #ifndef NO_CONFIG_OFFSET64
 #define CONFIG_OFFSET64
 #endif
+/* #define CONFIG_MMAP2 */
+#ifdef CONFIG_MMAP2
+#define CONFIG_SYSCALL_6TH_ARG
+#endif
 
 /* configuration options to help debugging */
 #ifndef NO_CONFIG_VERBOSE_SEGFAULTS
