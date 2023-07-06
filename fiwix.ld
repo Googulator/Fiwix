@@ -7,7 +7,7 @@
 
 OUTPUT_FORMAT("elf32-i386")
 OUTPUT_ARCH(i386)
-ENTRY(start)		/* entry point */
+ENTRY(_start)		/* entry point */
 vaddr = 0xC0000000;	/* virtual base address at 3GB */
 paddr = 0x100000;	/* physical address at 1MB */
 
