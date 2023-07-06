@@ -61,7 +61,7 @@
 #define MAX_SPU_NOTICES		10	/* max. number of messages on spurious
 					   interrupts */
 #endif
-
+/* #define CONFIG_NOT_IMPLEMENTED_WARNING */
 
 /* toggle configuration options */
 #ifndef NO_CONFIG_PCI

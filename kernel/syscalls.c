@@ -419,7 +419,7 @@ void *syscall_table[] = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
+	sys_madvise,
 	sys_getdents64,			/* 220 */
 	sys_fcntl64,
 };
