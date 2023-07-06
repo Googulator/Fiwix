@@ -44,6 +44,7 @@ char kparm_bgaresolution[15];
 int kparm_ro;
 
 unsigned int _last_data_addr;
+int _initrdrelocate;
 char *init_args;
 
 char kernel_cmdline[NAME_MAX + 1];
