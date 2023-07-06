@@ -181,5 +181,6 @@ int sys_madvise(void *, __size_t, int);
 int sys_getdents64(unsigned int, struct dirent64 *, unsigned int);
 int sys_fcntl64(unsigned int, int, unsigned long int);
 int sys_exit_group(int);
+int sys_utimes(const char *, struct timeval times[2]);
 
 #endif /* _FIWIX_SYSCALLS_H */
