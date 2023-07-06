@@ -141,16 +141,11 @@ void start_kernel(unsigned int magic, unsigned int info, unsigned int boot_last_
 	cpu_idle();
 }
 
+
 void stop_kernel(void)
 {
 	struct proc *p, *next;
 	int n;
-
-	/* stop and disable all interrupts! */
-	CLI();
-	for(n = 0; n < NR_IRQS; n++) {
-		disable_irq(n);
-	}
 
 	/* put all processes to sleep and reset all pending signals */
 	FOR_EACH_PROCESS_RUNNING(p) {
@@ -167,6 +162,9 @@ void stop_kernel(void)
 				case KEXEC_MULTIBOOT1:
 					kexec_multiboot1();
 					break;
+				case KEXEC_LINUX:
+					kexec_linux();
+					break;
 			}
 		}
 	}
@@ -177,6 +175,12 @@ void stop_kernel(void)
 	printk("            -or-\n");
 	printk("** Press Any Key to Reboot **\n");
 	any_key_to_reboot = 1;
+
+	/* stop and disable all interrupts! */
+	CLI();
+	for(n = 0; n < NR_IRQS; n++) {
+		disable_irq(n);
+	}
 
 	/* enable keyboard only */
 	enable_irq(KEYBOARD_IRQ);

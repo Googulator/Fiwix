@@ -10,12 +10,18 @@
 
 typedef __signed__ char __s8;
 typedef unsigned char __u8;
+typedef unsigned char uint8_t;
 typedef __signed__ short int __s16;
 typedef unsigned short int __u16;
+typedef unsigned short uint16_t;
 typedef __signed__ int __s32;
 typedef unsigned int __u32;
 typedef __signed__ long long int __s64;
 typedef unsigned long long int __u64;
+typedef unsigned int uint32_t;
+typedef unsigned long long uint64_t;
+typedef unsigned int size_t;
+typedef unsigned int * uintptr_t;
 
 typedef __u16 __uid_t;
 typedef __u16 __gid_t;
