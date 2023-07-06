@@ -15,7 +15,7 @@ CC = $(CROSS_COMPILE)gcc $(ARCH) $(CPU) $(LANG) -D__KERNEL__ #-D__DEBUG__
 LD = $(CROSS_COMPILE)ld
 LIBGCC := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
-CFLAGS = -I$(INCLUDE) -O2 -fno-pie -fno-common -ffreestanding -Wall -Wstrict-prototypes #-Wextra -Wno-unused-parameter
+CFLAGS = -I$(INCLUDE) -O2 -fno-pie -fno-common -ffreestanding -Wall -Wstrict-prototypes $(CONFFLAGS) #-Wextra -Wno-unused-parameter
 LDFLAGS = -m elf_i386 -nostartfiles -nostdlib -nodefaultlibs -nostdinc
 
 DIRS =	kernel \
