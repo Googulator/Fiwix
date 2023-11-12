@@ -253,11 +253,14 @@ void kexec_multiboot1(void)
 	map_orig = map = (struct multiboot_mmap_entry *)esp;
 	/* setup the memory map */
 	for(n = 0; n < nmaps; n++) {
-		map->size = sizeof(struct multiboot_mmap_entry) - sizeof(map->size);
-		map->addr = bios_mem_map[n].from;
-		map->len = (bios_mem_map[n].to + 1) - bios_mem_map[n].from;
-		map->type = bios_mem_map[n].type;
-		map++;
+		/* TODO pass PAE memory blocks on to the new kernel */
+		if (!bios_mem_map[n].from_hi && !bios_mem_map[n].to_hi) {
+			map->size = sizeof(struct multiboot_mmap_entry) - sizeof(map->size);
+			map->addr = bios_mem_map[n].from;
+			map->len = (bios_mem_map[n].to + 1) - bios_mem_map[n].from;
+			map->type = bios_mem_map[n].type;
+			map++;
+		}
 	}
 
 	/* space reserved for the multiboot_info structure */
@@ -921,8 +924,11 @@ void kexec_linux(void) {
                 if(!bios_mem_map[i].type || bios_mem_map[i].type > 0x1000) {
 			continue;
 		}
-		e820_table[j].addr = bios_mem_map[i].from;
-		e820_table[j].size = bios_mem_map[i].to - bios_mem_map[i].from;
+		e820_table[j].addr = bios_mem_map[i].from_hi;
+		e820_table[j].addr = (e820_table[j].addr << 32) | bios_mem_map[i].from;
+		e820_table[j].size = bios_mem_map[i].to_hi;
+		e820_table[j].size = (e820_table[j].size << 32) | bios_mem_map[i].to;
+		e820_table[j].size -= e820_table[j].addr;
 		e820_table[j].type = bios_mem_map[i].type;
 		j++;
 		boot_params->e820_entries = j;
