@@ -253,14 +253,14 @@ void kexec_multiboot1(void)
 	map_orig = map = (struct multiboot_mmap_entry *)esp;
 	/* setup the memory map */
 	for(n = 0; n < nmaps; n++) {
-		/* TODO pass PAE memory blocks on to the new kernel */
-		if (!bios_mem_map[n].from_hi && !bios_mem_map[n].to_hi) {
-			map->size = sizeof(struct multiboot_mmap_entry) - sizeof(map->size);
-			map->addr = bios_mem_map[n].from;
-			map->len = (bios_mem_map[n].to + 1) - bios_mem_map[n].from;
-			map->type = bios_mem_map[n].type;
-			map++;
-		}
+		map->size = sizeof(struct multiboot_mmap_entry) - sizeof(map->size);
+		map->addr = bios_mem_map[n].from_hi;
+		map->addr = map->addr << 32 | bios_mem_map[n].from;
+		map->len = bios_mem_map[n].to_hi;
+		map->len = map->len << 32 | bios_mem_map[n].to
+		map->len -= map->addr - 1;
+		map->type = bios_mem_map[n].type;
+		map++;
 	}
 
 	/* space reserved for the multiboot_info structure */
